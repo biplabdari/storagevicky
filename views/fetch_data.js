@@ -82,7 +82,7 @@ module.exports = {
     if(err) throw err;
 	console.log("Connected !!!");
 		    
-    con.query(sql, (err, res, cols)=>{
+    con.query(sql, function (err, res, cols)=>{
       if(err) throw err;
 		console.log("Executing query !!!");
 	    
