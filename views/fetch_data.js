@@ -1,127 +1,86 @@
-
 const http = require('http');
 const mysql = require('mysql');
-
-var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0'
-	;
-
-/*
 const connection = mysql.createConnection({
   host: 'custom-mysql.gamification.svc.cluster.local',
   user: 'xxuser',
   password: 'welcome1',
   database: 'sampledb'
 });
-connection.connect((err) => {
-  if (err) throw err;
-  console.log('Connected!');
-});
-*/
-
-const pool = mysql.createPool({
-  host: "custom-mysql.gamification.svc.cluster.local",
-  user: "xxuser",
-  password: "welcome1",
-  database: "sampledb"
-});
-
-	console.log(pool);
 
 //html string that will be send to browser
-var resulthtml ='<html><head><title>Node.js MySQL Select</title></head><body><h1>Node.js MySQL Select</h1>{${table}}</body></html>';
+var resulthtml ='<html><head><title>Kool App - Andromeda Product Page</title></head><body><h1>Product Details</h1>{${table}}</body></html>';
 
-//var sql ='select XXSKU.ITEM_NUMBER SKU, XXSKU.DESCRIPTION,XXPR.LIST_PRICE from XXIBM_PRODUCT_SKU XXSKU,XXIBM_PRODUCT_PRICING XXPR,XXIBM_PRODUCT_STYLE XXPS,XXIBM_PRODUCT_CATALOGUE XXPC where XXSKU.ITEM_NUMBER = XXPR.ITEM_NUMBER and XXSKU.STYLE_ITEM = XXPS.ITEM_NUMBER AND XXSKU.CATALOGUE_CATEGORY=XXPC.COMMODITY';
-//var sql = 'select SYSDATE()';
-	console.log(sql);
+var commodity_name = process.argv[2]; // pass argument to query
+var sql = '';
+var table = '';
+console.log(sql);
 
-//sets and returns html table with results from sql select
-//Receives sql query and callback function to return the table
-/*
-function setResHtml(sql, cb){
-	console.log("We are in setResHtml");
-  
-pool.getConnection((err, con)=>{
-    if(err) throw err;
-	
-    con.query(sql, (err, res, cols)=>{
-      if(err) throw err;
-		console.log("Connected and executing query");
-	    
-      var table =''; //to store html table
-
-      //create html table with data from res.
-      for(var i=0; i<res.length; i++){
-        table +='<tr><td>'+ (i+1) +'</td><td>'+ res[i].SKU +'</td><td>'+ res[i].DESCRIPTION +'</td></tr>';
-      }
-      table ='<table border="1"><tr><th>Nr.</th><th>Name</th><th>Address</th></tr>'+ table +'</table>';
-
-      con.release(); //Done with mysql connection
-
-	resulthtml = resulthtml.replace('{${table}}', table);
-      //return cb(table);
-	    return cb(resulthtml);
-    });
-  });
-}
-
-module.exports = {
-	setResHtml : setResHtml
-}
-*/
 
 var setResHtml;
 var extract_data;
-var sql;
+
 module.exports = {
-sql ="select XXSKU.ITEM_NUMBER SKU, XXSKU.DESCRIPTION,XXPR.LIST_PRICE from XXIBM_PRODUCT_SKU XXSKU,XXIBM_PRODUCT_PRICING XXPR,XXIBM_PRODUCT_STYLE XXPS,XXIBM_PRODUCT_CATALOGUE XXPC where XXSKU.ITEM_NUMBER = XXPR.ITEM_NUMBER and XXSKU.STYLE_ITEM = XXPS.ITEM_NUMBER AND XXSKU.CATALOGUE_CATEGORY=XXPC.COMMODITY";
-  setResHtml: function (sql, cb){
-	console.log("We are in setResHtml");
-  
-	pool.getConnection((err, con)=>{
-    if(err) throw err;
-	console.log("Connected !!!");
-		    
-    con.query(sql, function (err, res, cols)=>{
-      if(err) throw err;
-		console.log("Executing query !!!");
-	    
-      var table =''; //to store html table
-
-      //create html table with data from res.
-      for(var i=0; i<res.length; i++){
-        table +='<tr><td>'+ (i+1) +'</td><td>'+ res[i].SKU +'</td><td>'+ res[i].DESCRIPTION +'</td></tr>';
-      }
-      table ='<table border="1"><tr><th>Nr.</th><th>Name</th><th>Address</th></tr>'+ table +'</table>';
-
-      con.release(); //Done with mysql connection
-
-	resulthtml = resulthtml.replace('{${table}}', table);
-      //return cb(table);
-	   return cb(resulthtml);
-    });
-  });
-}
-,	
-  extract_data: function(req, res, next) {
-	console.log("We are in extract_data");
-    module.exports.setResHtml();
+	
+	setResHtml: 
+	function (sql, cb){
+		console.log("We are in setResHtml");
+		connection.connect((err) => {
+		  if (err) throw err;
+		  console.log('Connected!');
+		});
+		
+		sql = `select XXPC.COMMODITY_NAME PRODUCT_TYPE, XXSKU.ITEM_NUMBER SKU, XXPS.BRAND ,XXSKU.DESCRIPTION,XXSKU.LONG_DESCRIPTION, 
+			XXPR.LIST_PRICE,XXSKU.SKU_ATTRIBUTE_VALUE1 SIZE,XXSKU.SKU_ATTRIBUTE_VALUE2 COLOR,XXPR.IN_STOCK from 
+			XXIBM_PRODUCT_SKU XXSKU,XXIBM_PRODUCT_PRICING XXPR,XXIBM_PRODUCT_STYLE XXPS,XXIBM_PRODUCT_CATALOGUE XXPC
+			where XXSKU.ITEM_NUMBER = XXPR.ITEM_NUMBER
+			and XXSKU.STYLE_ITEM = XXPS.ITEM_NUMBER
+			AND XXSKU.CATALOGUE_CATEGORY=XXPC.COMMODITY`
+			//AND XXPC.COMMODITY_NAME = '` + commodity_name +`'` ;
+		connection.query(sql, function(err, res, fields) {
+		  if (!err){
+			//console.log('The solution is: ', res);
+			 // if there is no error, you have the result
+				// iterate for all the rows in result
+				console.log("Executing query !!!");
+				
+				Object.keys(res).forEach(function(key) {
+				  var row = res[key];
+				  console.log(row.PRODUCT_TYPE +`|`+ row.SKU +`|`+ row.BRAND +`|`+ row.DESCRIPTION +`|`+ row.LONG_DESCRIPTION +`|`+ row.LIST_PRICE
+					+`|`+ row.SIZE +`|`+ row.COLOR +`|`+ row.IN_STOCK) 
+					});
+				for(var i=0; i<res.length; i++){
+					table +='<tr><td>'+ (i+1) +'</td><td>'+ res[i].PRODUCT_TYPE +'</td><td>'+ res[i].SKU +'</td><td>'+ res[i].BRAND +'</td><td>'+ res[i].DESCRIPTION +'</td><td>'+ res[i].LONG_DESCRIPTION +'</td><td>'+ res[i].LIST_PRICE +'</td><td>'+ res[i].SIZE +'</td><td>'+ res[i].COLOR+'</td><td>'+ res[i].IN_STOCK +'</td></tr>';
+					}
+					table ='<table border="1"><tr><th>Sr No.</th><th>PRODUCT_TYPE</th><th>SKU</th><th>BRAND</th><th>DESCRIPTION</th><th>LONG_DESCRIPTION</th><th>LIST_PRICE</th><th>SIZE</th><th>COLOR</th><th>IN_STOCK</th></tr>'+ table +'</table>';
+									
+					resulthtml = resulthtml.replace('{${table}}', table);
+					
+					console.log(resulthtml);
+					//return cb(resulthtml);
+					
+					//return resulthtml;
+		
+					connection.end();
+		  }
+		  else
+		  {
+			console.log('Error while performing Query.');
+			console.log(err);
+			return null;
+			connection.end();
+		  }
+		});
+	}
+	,
+	extract_data: 
+	function(req, res, next) {
+		console.log("We are in extract_data");
+		module.exports.setResHtml();
+		console.log("extract_data ends !!!!");
+		return resulthtml;
+	
+	
   }
-}
 
-//module.exports = async () 
-/*
-module.exports = function extract_data()
-{
-	console.log("We are in module exports !!!");
-        let extracted_data;
-            //extracted_data = await setResHtml(sql, resql=>
-		extracted_data = setResHtml(sql, resql=>
-			{		  
-				reo = reo.replace('{${table}}', resql);
-			});
-
-        return extracted_data; 
-}
-*/
+ }
 
