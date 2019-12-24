@@ -1,4 +1,3 @@
-
 var express = require('express'),
     app     = express(),
     morgan  = require('morgan');
@@ -63,11 +62,14 @@ app.get("/background", function (req, res) {
 // Get the data from mysql database
 app.get("/fetch_data", function (req, res) {
   //res.sendFile('fetch_data.js', { root : VIEWS });
- //let product_data = fetch_data_sql;
-const fetch_data_sql = require('./views/fetch_data.js');
-console.log(fetch_data_sql.extract_data());
+
+//const fetch_data_sql = require('./views/fetch_data.js');
+//console.log(fetch_data_sql.extract_data());
+var fetch_data_sql = require('./views/fetch_data.js');
+//console.log(fetch_data_sql.extract_data());
 //create the server for browser access
 const server = http.createServer((req, res)=>{
+    console.log("Server creation starts !!!");	
     res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
     res.write(fetch_data_sql, 'utf-8');
     res.end();
